@@ -1,0 +1,132 @@
+---
+title: "Homework 1"
+output: html_document
+---
+
+# Start fresh
+```{r}
+# clear the memory of the working environment at the start of the session
+rm(list = ls())
+```
+
+
+# Get the data
+```{r}
+# open an Excel file from a GitHub URL
+linkGit="https://github.com/DACSS-Fundamentals/overview/raw/refs/heads/main/FSI-2023-DOWNLOAD.xlsx"
+
+# install the rio package if necessary
+# install.packages('rio')
+
+# load the rio package into session
+library(rio) # package needed
+
+# name the imported Excel file as fragility23
+fragility23=rio::import(file = linkGit) # object that will hold the result
+```
+
+# Exploratory commands
+```{r}
+# show column names in fragility23
+names(x = fragility23)
+
+# check data types in df and if numeric columns have been read properly
+str(object = fragility23)
+
+# show the first 10 rows of fragility23
+head(x = fragility23,10)
+
+# show the last 10 rows of fragility23
+tail(fragility23,10)
+```
+
+
+# Transformative commands
+
+## Subsetting
+```{r}
+# test function to show the column names to keep: 
+#   Country, Total, S1: Demographic Pressures, P1: State Legitimacy, E2: Economic Inequality, E2: Economic Inequality into object 'frag23_sub'
+grep(pattern = "Country|S1|P1|E2|Total",x = names(fragility23),fixed = F,value = T) # test
+
+# keep the list of column names in variable keep
+keep=grep("Country|S1|P1|E2|Total",names(fragility23),fixed = F,value = T)
+
+# store the selected columns based on the column names in keep in frag23_sub
+frag23_sub=fragility23[,keep]
+```
+
+## Renaming
+```{r}
+# rename frag23_sub columns, only use var codes S1, P1, E2
+names(frag23_sub)[3:5]=c("S1","E2", "P1")
+```
+
+## Filtering
+```{r}
+# get the top ten best countries on the column E2 from frag23_sub
+tail(frag23_sub[order(x=-frag23_sub$E2),],10) # option 1 using a df
+tail(frag23_sub[order(x=-frag23_sub$E2),'Country'],10) # option 2 with only country names
+```
+
+# Some computations
+```{r}
+# give the statistical description of frag23_sub
+summary(object = frag23_sub)
+
+# store the value of the worst quartile of Total in q3_Total
+q3_Total=quantile(x = frag23_sub$Total, 
+                  probs = 0.75, 
+                  na.rm = TRUE)
+
+# show correlations between S1, E2, P1
+cor(x=frag23_sub[,-c(1,2)]) #no 'Country', no "Total'
+
+# install the corrtable package if necessary
+# install.packages("corrtable")
+
+# load the corrtable package into session
+library(corrtable)
+
+# show correlations between S1, E2, P1 and their "significance"
+corrtable::correlation_matrix(df = frag23_sub[,-c(1,2)])
+
+# run a linear regression to show how P1 and E2 predict S1
+lm(S1~P1+E2,data=frag23_sub)
+
+# store the regression results in variable model
+model <- lm(S1 ~ P1 + E2, data = frag23_sub)
+
+# show the detailed results of model
+summary(model)
+```
+
+# Some plotting
+```{r}
+# create a histogram for the P1 variable
+hist(x = frag23_sub$P1) # uses base r
+
+## create a scatter plot for a visual correlation between S1 and E2
+plot(x=frag23_sub$S1, y=frag23_sub$E2)
+
+## color points if country is on the worst quartile of Total
+# identify if country is on the worst quartile of Total
+frag23_sub$Total>=q3_Total
+
+# add a new column worstQt to store booleans
+frag23_sub$worstQt=frag23_sub$Total>=q3_Total
+
+# create scatter plot for S1 and E2 and color points if country is on the worst quartile of Total
+plot(frag23_sub$S1, 
+     frag23_sub$E2,pch=20,
+     col = as.factor(frag23_sub$worstQt))
+
+# install the sjPlot package if necessary
+# install.packages("sjPlot")
+
+# load the sjPlot package into session
+library(sjPlot)
+
+# visual of the regression P1 and E2 on S1
+plot_models(model)
+```
