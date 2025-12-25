@@ -106,10 +106,10 @@ summary(model)
 # create a histogram for the P1 variable
 hist(x = frag23_sub$P1) # uses base r
 
-## create a scatter plot for a visual correlation between S1 and E2
+# create a scatter plot for a visual correlation between S1 and E2
 plot(x=frag23_sub$S1, y=frag23_sub$E2)
 
-## color points if country is on the worst quartile of Total
+# color points if country is on the worst quartile of Total
 # identify if country is on the worst quartile of Total
 frag23_sub$Total>=q3_Total
 
