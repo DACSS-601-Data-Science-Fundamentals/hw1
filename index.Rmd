@@ -13,7 +13,7 @@ rm(list = ls())
 # Get the data
 ```{r}
 # open an Excel file from a GitHub URL
-linkGit="https://github.com/DACSS-Fundamentals/overview/raw/refs/heads/main/FSI-2023-DOWNLOAD.xlsx"
+linkGit="https://github.com/DACSS-601-Data-Science-Fundamentals/hw1/raw/refs/heads/main/FSI-2023-DOWNLOAD.xlsx"
 
 # install the rio package if necessary
 # install.packages('rio')
